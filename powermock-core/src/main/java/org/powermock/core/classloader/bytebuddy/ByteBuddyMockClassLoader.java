@@ -94,7 +94,7 @@ public class ByteBuddyMockClassLoader extends MockClassLoader {
     
     private Builder<Object> createByteBuddyBuilder(final TypeDescription typeDefinitions) {
         return new ByteBuddy()
-                   .redefine(
+                   .rebase(
                        typeDefinitions,
                        ForClassLoader.ofClassPath()
                    );

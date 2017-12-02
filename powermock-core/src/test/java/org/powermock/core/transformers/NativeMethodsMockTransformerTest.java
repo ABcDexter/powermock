@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.junit.runners.Parameterized;
 import org.powermock.core.test.MockClassLoaderFactory;
 import org.powermock.core.transformers.bytebuddy.MethodMockTransformer;
+import org.powermock.core.transformers.bytebuddy.NativeMethodMockTransformer;
 import org.powermock.core.transformers.bytebuddy.advice.MockMethodDispatchers;
 import org.powermock.core.transformers.javassist.StaticFinalNativeMethodMockTransformer;
 import org.powermock.core.transformers.mock.MockGatewaySpy;
@@ -44,8 +45,8 @@ public class NativeMethodsMockTransformerTest extends AbstractBaseMockTransforme
     public static Iterable<Object[]> data() {
         Collection<Object[]> data = new ArrayList<Object[]>();
         
-        data.addAll(MockTransformerTestHelper.createOneTransformerTestData(MockGatewaySpy.class, StaticFinalNativeMethodMockTransformer.class));
-        data.addAll(MockTransformerTestHelper.createOneTransformerTestData(MethodMockTransformer.class));
+        //data.addAll(MockTransformerTestHelper.createOneTransformerTestData(MockGatewaySpy.class, StaticFinalNativeMethodMockTransformer.class));
+        data.addAll(MockTransformerTestHelper.createOneTransformerTestData(NativeMethodMockTransformer.class));
         
         return data;
     }
@@ -59,7 +60,7 @@ public class NativeMethodsMockTransformerTest extends AbstractBaseMockTransforme
     }
     
     @Test
-    public void should_return_value_from_getaway_for_native_methods_is_it_is_not_PROCEED() throws Exception {
+    public void should_return_value_from_getaway_for_native_instance_methods_is_it_is_not_PROCEED() throws Exception {
         final String expected = RandomString.make(10);
         MockGatewaySpy.returnOnMethodCall("nativeReturnMethod", expected);
         
@@ -75,5 +76,22 @@ public class NativeMethodsMockTransformerTest extends AbstractBaseMockTransforme
         
         assertThat(methodCalls())
             .is(registered().forMethod("nativeReturnMethod"));
+    }
+    
+    @Test
+    public void should_return_value_from_getaway_for_native_static_methods_is_it_is_not_PROCEED() throws Exception {
+        final String expected = RandomString.make(10);
+        MockGatewaySpy.returnOnMethodCall("nativeStaticReturnMethod", expected);
+        
+        final Class<?> clazz = loadWithMockClassLoader(NativeMethodsTestClass.class.getName());
+        
+        final String name = "name";
+        final Object result = WhiteboxImpl.invokeMethod(clazz, "nativeStaticReturnMethod", name);
+        
+        assertThat(result)
+            .isEqualTo(expected);
+        
+        assertThat(methodCalls())
+            .is(registered().forMethod("nativeStaticReturnMethod"));
     }
 }

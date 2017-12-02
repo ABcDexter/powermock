@@ -293,6 +293,7 @@ public class MainMockTransformerTestSupport {
     }
     
     public static class NativeMethodsTestClass {
+        public static native String nativeStaticReturnMethod(final String name);
         public native String nativeReturnMethod(final String name);
     }
 }

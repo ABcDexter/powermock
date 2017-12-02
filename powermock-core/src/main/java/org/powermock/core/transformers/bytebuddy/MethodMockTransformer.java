@@ -17,23 +17,10 @@ import org.powermock.core.transformers.bytebuddy.support.ByteBuddyClass;
 import static net.bytebuddy.matcher.ElementMatchers.isMethod;
 import static net.bytebuddy.matcher.ElementMatchers.not;
 
-public class MethodMockTransformer extends AbstractByteBuddyMockTransformer {
-    
-    private final String identifier;
+public class MethodMockTransformer extends AbstractMethodMockTransformer {
     
     public MethodMockTransformer(final TransformStrategy strategy) {
         super(strategy);
-        identifier = RandomString.make();
-        MockMethodDispatchers.set(identifier, new MockGatewayMethodDispatcher());
-    }
-    
-    public String getIdentifier() {
-        return identifier;
-    }
-    
-    @Override
-    protected boolean classShouldTransformed(final TypeDescription typeDefinitions) {
-        return true;
     }
     
     @Override
@@ -49,7 +36,7 @@ public class MethodMockTransformer extends AbstractByteBuddyMockTransformer {
                      .bind(MockMethodAdvice.Identifier.class, identifier)
                      .to(MockStaticMethodAdvice.class)
                      .on(
-                         isMethod().and(ElementMatchers.<MethodDescription>isStatic())
+                         isMethod().and(ElementMatchers.<MethodDescription>isStatic()).and(not(ElementMatchers.<MethodDescription>isNative()))
                      );
     }
     
@@ -60,7 +47,7 @@ public class MethodMockTransformer extends AbstractByteBuddyMockTransformer {
                      .on(
                          isMethod().and(
                              not(
-                                 ElementMatchers.<MethodDescription>isStatic().or(ElementMatchers.<MethodDescription>isSynthetic())
+                                 ElementMatchers.<MethodDescription>isStatic().or(ElementMatchers.<MethodDescription>isSynthetic()).or(ElementMatchers.<MethodDescription>isNative())
                              )
                          )
                      );
